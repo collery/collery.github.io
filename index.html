@@ -238,6 +238,106 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/30/设计模式之模版方法/" itemprop="url">
+                  设计模式之模版方法
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-30T01:36:06+08:00" content="2016-12-30">
+              2016-12-30
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="定义："><a href="#定义：" class="headerlink" title="定义："></a>定义：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div></pre></td><td class="code"><pre><div class="line">模板方法模式：在一个方法中定义一个算法的骨架，而将一些步骤延迟到子类中。  </div><div class="line">模板方法使得子类可以在不改变算法结构的情况下，重新定义算法中的某些步骤。</div><div class="line">~~~ </div><div class="line"></div><div class="line">##### demo：  </div><div class="line">在很多订单系统中，订单操作的流程大致步骤都是相同的。  </div><div class="line">    1. 构建上下文  </div><div class="line">    2. 校验  </div><div class="line">    3. 创建订单  </div><div class="line">    4. 入库  </div><div class="line">    但是一些具体的逻辑和需求是不一定的。比如创建订单和修改项目。  </div><div class="line">    </div><div class="line">``` java</div><div class="line">抽象类：AbstractOrderOperationTemplate</div><div class="line"></div><div class="line">public abstract class AbstractOrderOperationTemplate&lt;Context extends OrderContext&gt;&#123;</div><div class="line">        protected ApplicationContext applicationContext;</div><div class="line">    //校验</div><div class="line">    protected List&lt;OrderValidator&gt; orderValidators;</div><div class="line"></div><div class="line">    /**</div><div class="line">    * 操作流程</div><div class="line">    */</div><div class="line">    public final void operate(Context context) throws OrderException &#123;</div><div class="line">        buildContext(context); //构建</div><div class="line">        validate(context); //校验</div><div class="line">        process(context); //下单</div><div class="line">        store(context); //入库</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    //构建上下文</div><div class="line">    protected abstract void buildContext(Context context);</div><div class="line">    //校验逻辑</div><div class="line">    protected void validate(Context context) throws OrderException &#123;</div><div class="line">        if (CollectionUtils.isNotEmpty(orderValidators)) &#123;</div><div class="line">            for (OrderValidator validator : orderValidators) &#123;</div><div class="line">                validator.validate(context);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    //下单流程</div><div class="line">    protected abstract void process(Context context) throws OrderException;</div><div class="line">    //入库</div><div class="line">    protected abstract void store(Context context);</div><div class="line">    </div><div class="line">下单：OrderCreateTemplate</div><div class="line">public class OrderCreateTemplate extends AbstractOrderOperationTemplate&lt;OrderCreateContext&gt; &#123;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    protected void buildContext(OrderCreateContext context) &#123;</div><div class="line">    </div><div class="line">        //code list do something</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    @Override</div><div class="line">    protected void process(OrderCreateContext context) &#123;</div><div class="line">         //code list do something</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    @Override</div><div class="line">    protected void store(OrderCreateContext context) &#123;</div><div class="line">        //code list do something</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    &#125;</div><div class="line">    </div><div class="line">修改订单：OrderChangeTemplate</div><div class="line"></div><div class="line">public class OrderChangeTemplate</div><div class="line">        extends AbstractOrderOperationTemplate&lt;OrderChangeExamItemContext&gt; &#123;</div><div class="line">            </div><div class="line">        @Override</div><div class="line">        protected void buildContext(OrderCreateContext context) &#123;</div><div class="line">        </div><div class="line">            //code list do something</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        @Override</div><div class="line">        protected void process(OrderCreateContext context) &#123;</div><div class="line">             //code list do something</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        @Override</div><div class="line">        protected void store(OrderCreateContext context) &#123;</div><div class="line">            //code list do something</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        &#125;</div><div class="line"></div><div class="line">```  </div><div class="line">上面将创建订单和修改订单的整体流程定义在抽象类AbstractOrderOperationTemplate中，其中operate方法为final,然后validate方法提供了默认实,而其他三个方法均为abstract，需要在ordercreate和orderchange类中自己实现。  </div><div class="line"></div><div class="line">##### 总结</div></pre></td></tr></table></figure>
+<ol>
+<li>“模版方法”定义了算法的步骤。  </li>
+<li>模版方法是一种代码复用的重要技巧。</li>
+<li>模版方法可以定义具体，抽象方法。其中抽象方法由子类实现。</li>
+<li>最好将算法骨架方法改为final。<br>~~~<br>//todo 模版方法的钩子以及与策略模式的比较，特殊的工厂方法。</li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/12/index/" itemprop="url">
                   Hello World
                 </a>
@@ -359,7 +459,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">1</span>
+              <span class="site-state-item-count">2</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
